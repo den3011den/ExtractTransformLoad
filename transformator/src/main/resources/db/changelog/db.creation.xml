@@ -31,6 +31,23 @@
                 created_at timestamp without time zone NOT NULL
             );
 
+            ALTER TABLE public.aenaflight_source
+            OWNER TO postgres;
+
+            create table proceed_table
+            (
+            id                    bigint default nextval('proceed_table' :: regclass) not null
+            constraint proceed_table_pkey
+            primary key,
+            flight_icao_code      varchar(8)                                          not null,
+            flight_number         varchar(8)                                          not null,
+            schd_dep_only_date_lt varchar(32),
+            done                  boolean default false
+            );
+
+            alter table proceed_table
+            owner to postgres;
+
         </sql>
     </changeSet>
 </databaseChangeLog>
