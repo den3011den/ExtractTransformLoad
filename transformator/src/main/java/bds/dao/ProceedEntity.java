@@ -2,13 +2,16 @@ package bds.dao;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
 
 @Entity
 @Table(name="proceed_table")
 public class ProceedEntity {
 
   @Id
-  @Column(name="id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @NotNull
   private long id;
 
   @Column(name="flight_icao_code")
@@ -21,7 +24,7 @@ public class ProceedEntity {
   private String schdDepOnlyDateLt;
 
   @Column(name="done")
-  private String done;
+  private boolean done;
 
 
   public long getId() {
@@ -56,11 +59,11 @@ public class ProceedEntity {
     this.schdDepOnlyDateLt = schdDepOnlyDateLt;
   }
 
-  public String getDone() {
+  public boolean getDone() {
     return this.done;
   }
 
-  public void setDone(String done) {
+  public void setDone(boolean done) {
     this.done = done;
   }
 }

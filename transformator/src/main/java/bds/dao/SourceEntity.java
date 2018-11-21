@@ -2,13 +2,16 @@ package bds.dao;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
 
 @Entity
 @Table(name="aenaflight_2017_01")
 public class SourceEntity {
 
   @Id
-  @Column(name="id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @NotNull
   private long id;
 
   @Column(name="act_arr_date_time_lt")
