@@ -1,8 +1,6 @@
 package bds.services;
 
 import bds.dao.ProceedEntity;
-import bds.dao.SourceEntity;
-import bds.dao.TargetEntity;
 import bds.dao.repo.ProceedRepository;
 import bds.dao.repo.SourceRepository;
 import bds.dao.repo.TargetRepository;
@@ -11,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
@@ -20,7 +19,10 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManagerFactory;
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.*;
 
 @Service
 @PropertySource("classpath:/transformator.properties")
@@ -29,11 +31,11 @@ import java.util.List;
 
 public class TransformatorService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TransformatorService.class);
+    // максимальное число одновременно работающих потоков (размер thread pool)
+    @Value("${transformator.maxProceedThreads.prop}")
+    private int maxProceedThreads;
 
-    //static private List<ProceedEntity> allProceeds;
-    //static private List<SourceEntity> allSources;
-    //static private List<TargetEntity> allTargets;
+    private static final Logger LOG = LoggerFactory.getLogger(TransformatorService.class);
 
     @Bean
     public SessionFactory sessionFactory(EntityManagerFactory emf) {
@@ -106,49 +108,47 @@ public class TransformatorService {
     }
 
 
-    public boolean transformationProcess(List<ProceedEntity> list, boolean echo) throws ParseException {
+    public void transformationProcess(List<ProceedEntity> list, boolean echo) throws ParseException, InterruptedException, ExecutionException {
 
         int recordsCount = list.size();
 
         int counter = 0;
+        int totalCounter = 0;
 
-        Session session = sessionFactory.openSession();
+        ExecutorService pool = Executors.newFixedThreadPool(maxProceedThreads);
+        Set<Future<Boolean>> set = new HashSet<Future<Boolean>>();
 
-        for(ProceedEntity proceedEntity: list) {
+        for (ProceedEntity proceedEntity : list) {
 
-            Transaction transaction = session.beginTransaction();
+            totalCounter++;
 
             counter++;
 
-            Query query = session.createQuery("from SourceEntity " +
-                    " where flightIcaoCode = :flightIcaoCode and flightNumber = :flightNumber" +
-                    " and schdDepOnlyDateLt = :schdDepOnlyDateLt " +
-                    " order by createdAt DESC, id DESC");
+            LOG.info("adding to proceed record " + totalCounter + " of " + recordsCount + "records");
 
-            query.setParameter("flightIcaoCode", proceedEntity.getFlightIcaoCode());
-            query.setParameter("flightNumber", proceedEntity.getFlightNumber());
-            query.setParameter("schdDepOnlyDateLt", proceedEntity.getSchdDepOnlyDateLt());
+            Callable<Boolean> callable = new ThreadService(proceedEntity, sessionFactory,
+                    proceedRepository, targetRepository);
+            Future<Boolean> future = pool.submit(callable);
+            set.add(future);
+//
+//            if (counter>=maxProceedThreads) {
+//                for (Future<Boolean> future2 : set) {
+//                    future2.get();
+//                }
+//                counter=0;
+//            }
+        }
+        if (counter >= maxProceedThreads) {
+            for (Future<Boolean> future2 : set) {
+                future2.get();
+            }
 
-            List<SourceEntity> sourceList = query.list();
-
-            TargetEntity targetEntity = new TargetEntity(sourceList);
-
-            targetRepository.save(targetEntity);
-
-            proceedEntity.setDone(true);
-
-            proceedRepository.save(proceedEntity);
-
-            if (echo)
-                LOG.info("TransformationProcess(): proceeded " + counter + " record of " + recordsCount + " records");
-
-            transaction.commit();
         }
 
-        return true;
     }
-
 }
+
+
 
 
 
