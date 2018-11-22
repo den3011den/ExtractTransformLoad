@@ -4,7 +4,6 @@ import bds.dao.ProceedEntity;
 import bds.dao.SourceEntity;
 import bds.dao.TargetEntity;
 import bds.dao.repo.ProceedRepository;
-import bds.dao.repo.SourceRepository;
 import bds.dao.repo.TargetRepository;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -12,16 +11,16 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import sun.util.locale.provider.LocaleServiceProviderPool;
 
 import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class ThreadService implements Callable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ThreadService.class);
+// класс для обработки каждой записи из proceed_table в отдельном потоке
+public class ThreadTransformationService implements Callable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ThreadTransformationService.class);
 
     ProceedEntity proceedEntity;
 
@@ -31,9 +30,8 @@ public class ThreadService implements Callable {
 
     TargetRepository targetRepository;
 
-
-    public ThreadService(ProceedEntity proceedEntity, SessionFactory sessionFactory,
-                         ProceedRepository proceedRepository, TargetRepository targetRepository) {
+    public ThreadTransformationService(ProceedEntity proceedEntity, SessionFactory sessionFactory,
+                                       ProceedRepository proceedRepository, TargetRepository targetRepository) {
 
         this.sessionFactory = sessionFactory;
         this.proceedEntity = proceedEntity;
@@ -44,13 +42,13 @@ public class ThreadService implements Callable {
 
 
     /**
-     * Алгоритм работы нити игрока
+     * Алгоритм работы нити
      */
     @Override
     public Boolean call() throws Exception {
         try {
 
-            LOG.info(Thread.currentThread().getName() + ": " + " thread started. Work with record id " + proceedEntity.getId());
+            LOG.info("-->> " + Thread.currentThread().getName() + ": " + " thread started. Work with record id " + proceedEntity.getId());
             Session session = sessionFactory.openSession();
 
             Query query = session.createQuery("from SourceEntity " +
@@ -70,6 +68,7 @@ public class ThreadService implements Callable {
 
             targetRepository.save(targetEntity);
 
+            // считает запись обработанной, чтобы больше не обрабатывать повторно
             proceedEntity.setDone(true);
 
             proceedRepository.save(proceedEntity);
@@ -79,9 +78,9 @@ public class ThreadService implements Callable {
             session.close();
 
         } catch (ParseException e) {
-              e.printStackTrace();
+            e.printStackTrace();
         }
 
-        return new Boolean(true);
+        return Boolean.TRUE;
     }
 }

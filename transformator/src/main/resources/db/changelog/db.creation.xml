@@ -5,19 +5,6 @@
     <changeSet id="db.creation" author="bds">
         <sql>
 
-            create index aenaflight_2017_01_flight_icao_code_index
-            on aenaflight_2017_01 (flight_icao_code desc);
-
-            create index aenaflight_2017_01_flight_number_index
-            on aenaflight_2017_01 (flight_number desc);
-
-            create index aenaflight_2017_01_schd_dep_only_date_lt_index
-            on aenaflight_2017_01 (schd_dep_only_date_lt desc);
-
-            <!--   create index aenaflight_2017_01_flight_icao_code_flight_number_schd_dep_only
-              on aenaflight_2017_01 (flight_icao_code desc, flight_number desc, schd_dep_only_date_lt desc);  -->
-
-
             CREATE TABLE aenaflight_source (
                 id bigserial NOT NULL PRIMARY KEY,
                 adep character varying(8) NOT NULL,
@@ -61,6 +48,7 @@
 
             alter table proceed_table
             owner to postgres;
+
 
 
         </sql>

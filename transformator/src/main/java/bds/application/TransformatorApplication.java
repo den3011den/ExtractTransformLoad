@@ -13,59 +13,62 @@ import org.springframework.context.annotation.ComponentScan;
 import java.util.List;
 
 @SpringBootApplication
-@ComponentScan({"bds.services","bds.config", "bds", "bds.dao"})
+@ComponentScan({"bds.services", "bds.config", "bds", "bds.dao"})
 public class TransformatorApplication implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(TransformatorApplication.class);
+    @Autowired
+    TransformatorService transformatorService;
 
     public static void main(String args[]) {
         SpringApplication.run(TransformatorApplication.class, args);
     }
 
-    @Autowired
-    TransformatorService transformatorService;
-
     @Override
     public void run(String... strings) throws Exception {
 
-        log.info("Application started work");
+        log.info(" -->> Application started work");
 
-        log.info("Checking if there was previous work ...");
+        log.info(" -->> Checking if there was previous work ...");
 
         if (transformatorService.getAllProceedTableRecords().size() == 0) {
 
-            log.info("No previous work found.");
-
-            log.info("Gathering records for work (filling proceed_table) ...");
+            log.info(" -->> Previous work not found");
+            log.info(" -->> Deleting source table index if exists");
+            transformatorService.deleteSourceTableIndex();
+            log.info(" -->> Gathering records for work (filling proceed_table) ...");
 
             if (transformatorService.getProceedList() == false) {
-                log.info("Error while gathering records for work (filling proceed_table)! Exit.");
+                log.info(" -->> Error while gathering records for work (filling proceed_table)! Exit.");
                 System.exit(-1);
             }
-        }
 
-        log.info("Gathering not proceeded records from proceed_table ...");
+         }
+
+        log.info(" -->> Indexing source table (if not exists)... ");
+        transformatorService.addSourceTableIndex();
+        log.info(" -->> Finished indexing source table");
+
+        log.info(" -->> Gathering unprocessed records from proceed_table ...");
+
         List<ProceedEntity> notDoneProceedTableRecords = transformatorService.getNotDoneProceedTableRecords();
         if (notDoneProceedTableRecords.size() > 0) {
-            log.info(" " + notDoneProceedTableRecords.size() + " not proceeded records found");
-            log.info("Started proceed ...");
-            transformatorService.transformationProcess(notDoneProceedTableRecords,true);
+            log.info(" -->> " + notDoneProceedTableRecords.size() + " unprocessed records found");
+            log.info(" -->> Processing started ...");
+            transformatorService.transformationProcess(notDoneProceedTableRecords, true);
 
             notDoneProceedTableRecords = transformatorService.getNotDoneProceedTableRecords();
 
-            if (notDoneProceedTableRecords.size()>0) {
-                log.warn("There was some problems with some records during proceeding data");
-                log.warn("Not all data were processed.");
-                log.warn("You have to run this application one more time again to process the raw data.");
-            }
-                else {
-                log.info("The process has been completed. All records processed");
+            if (notDoneProceedTableRecords.size() > 0) {
+                log.warn(" -->> There was some problems with some records during proceeding data");
+                log.warn(" -->> Not all data were processed.");
+                log.warn(" -->> You have to run this application one more time again to process the raw data.");
+            } else {
+                log.info(" -->> The process has been completed. All records has been processed");
             }
 
-
-            }
-            else {
-                log.info("It seems all data has been proceeded. Cannot find not done records in proceed_table");
+        } else {
+            log.info(" -->> It seems all data has been processed. Cannot find unprocessed records in proceed_table");
         }
 
         log.info("Application finished work");
