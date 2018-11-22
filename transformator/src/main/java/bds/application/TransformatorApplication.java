@@ -50,7 +50,19 @@ public class TransformatorApplication implements CommandLineRunner {
             log.info(" " + notDoneProceedTableRecords.size() + " not proceeded records found");
             log.info("Started proceed ...");
             transformatorService.transformationProcess(notDoneProceedTableRecords,true);
-            log.info("Finished proceed");
+
+            notDoneProceedTableRecords = transformatorService.getNotDoneProceedTableRecords();
+
+            if (notDoneProceedTableRecords.size()>0) {
+                log.warn("There was some problems with some records during proceeding data");
+                log.warn("Not all data were processed.");
+                log.warn("You have to run this application one more time again to process the raw data.");
+            }
+                else {
+                log.info("The process has been completed. All records processed");
+            }
+
+
             }
             else {
                 log.info("It seems all data has been proceeded. Cannot find not done records in proceed_table");

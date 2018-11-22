@@ -50,8 +50,9 @@ public class ThreadService implements Callable {
     public Boolean call() throws Exception {
         try {
 
-            LOG.info(Thread.currentThread().getName() + ": " + " thread started");
+            LOG.info(Thread.currentThread().getName() + ": " + " thread started. Work with record id " + proceedEntity.getId());
             Session session = sessionFactory.openSession();
+
             Query query = session.createQuery("from SourceEntity " +
                     " where flightIcaoCode = :flightIcaoCode and flightNumber = :flightNumber" +
                     " and schdDepOnlyDateLt = :schdDepOnlyDateLt " +
@@ -74,6 +75,8 @@ public class ThreadService implements Callable {
             proceedRepository.save(proceedEntity);
 
             transaction.commit();
+
+            session.close();
 
         } catch (ParseException e) {
               e.printStackTrace();

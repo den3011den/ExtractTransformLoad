@@ -87,6 +87,8 @@ public class TransformatorService {
 
         transaction.commit();
 
+        session.close();
+
         return allProceedTableRecordsList;
     }
 
@@ -103,6 +105,7 @@ public class TransformatorService {
         List<ProceedEntity> notDoneProceedTableRecordsList = criteria.list();
 
         transaction.commit();
+        session.close();
 
         return notDoneProceedTableRecordsList;
     }
@@ -124,7 +127,7 @@ public class TransformatorService {
 
             counter++;
 
-            LOG.info("adding to proceed record " + totalCounter + " of " + recordsCount + "records");
+            LOG.info("adding to proceed queue record " + totalCounter + " of " + recordsCount + " records");
 
             Callable<Boolean> callable = new ThreadService(proceedEntity, sessionFactory,
                     proceedRepository, targetRepository);
