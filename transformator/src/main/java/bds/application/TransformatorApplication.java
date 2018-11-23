@@ -24,7 +24,6 @@ public class TransformatorApplication implements CommandLineRunner {
         SpringApplication.run(TransformatorApplication.class, args);
     }
 
-    @Override
     public void run(String... strings) throws Exception {
 
         log.info(" -->> Application started work");
