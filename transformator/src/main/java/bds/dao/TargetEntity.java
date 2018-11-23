@@ -30,11 +30,11 @@ public class TargetEntity {
         String arr_apt_code_iata = "";                  //last
         String aircraft_name_scheduled = "";            //last
         String arr_apt_name_es = "";                    //last
-        StringBuilder baggage_info = new StringBuilder("");         //LIFO
+        StringBuilder baggage_info = new StringBuilder();         //LIFO
         String carrier_airline_name_en = "";            //last
         String carrier_icao_code = "";                  //last
         String carrier_number = "";                     //last
-        StringBuilder counter = new StringBuilder("");               //LIFO
+        StringBuilder counter = new StringBuilder();               //LIFO
         String dep_apt_name_es = "";                    //last
         String dep_apt_code_iata = "";                  //last
         String est_arr_date_time_lt = "";               //last
@@ -44,14 +44,14 @@ public class TargetEntity {
         String flight_icao_code = "";                   // last
         String flight_number = "";                      // last
         String flt_leg_seq_no = "";                     // last
-        StringBuilder gate_info = new StringBuilder("");            // LIFO
-        StringBuilder lounge_info = new StringBuilder("");          // LIFO
+        StringBuilder gate_info = new StringBuilder();            // LIFO
+        StringBuilder lounge_info = new StringBuilder();          // LIFO
         String schd_arr_only_date_lt = "";              // last
         String schd_arr_only_time_lt = "";              // last
         String source_data = "";                        // last
         String status_info = "";                        // last
-        StringBuilder terminal_info = new StringBuilder("");         // LIFO
-        StringBuilder arr_terminal_info = new StringBuilder("");     // LIFO
+        StringBuilder terminal_info = new StringBuilder();         // LIFO
+        StringBuilder arr_terminal_info = new StringBuilder();     // LIFO
         String act_dep_date_time_lt = "";               // last
         String schd_dep_only_date_lt = "";              // last
         String schd_dep_only_time_lt = "";              // last
@@ -238,7 +238,7 @@ public class TargetEntity {
         this.carrierNumber = carrier_number;
         this.statusInfo = status_info;
 
-        Date date = new Date();
+        Date date;
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy HH:mm");
 

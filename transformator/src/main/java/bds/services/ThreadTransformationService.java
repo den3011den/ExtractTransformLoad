@@ -18,17 +18,17 @@ import java.util.concurrent.Callable;
 
 
 // класс для обработки каждой записи из proceed_table в отдельном потоке
-public class ThreadTransformationService implements Callable {
+class ThreadTransformationService implements Callable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ThreadTransformationService.class);
 
-    ProceedEntity proceedEntity;
+    private final ProceedEntity proceedEntity;
 
-    SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
-    ProceedRepository proceedRepository;
+    private final ProceedRepository proceedRepository;
 
-    TargetRepository targetRepository;
+    private final TargetRepository targetRepository;
 
     public ThreadTransformationService(ProceedEntity proceedEntity, SessionFactory sessionFactory,
                                        ProceedRepository proceedRepository, TargetRepository targetRepository) {
@@ -44,8 +44,8 @@ public class ThreadTransformationService implements Callable {
     /**
      * Алгоритм работы нити
      */
-    @Override
-    public Boolean call() throws Exception {
+    //@Override
+    public Boolean call() {
         try {
 
             LOG.info("-->> " + Thread.currentThread().getName() + ": " + " thread started. Work with record id " + proceedEntity.getId());

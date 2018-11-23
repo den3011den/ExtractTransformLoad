@@ -17,7 +17,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManagerFactory;
-import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -139,7 +138,7 @@ public class TransformatorService {
 
 
     // запуск процесса обработки записей с запуском каждого запроса в разной нити
-    public void transformationProcess(List<ProceedEntity> list, boolean echo) throws ParseException, InterruptedException, ExecutionException {
+    public void transformationProcess(List<ProceedEntity> list, boolean echo) throws InterruptedException, ExecutionException {
 
         int recordsCount = list.size();
 

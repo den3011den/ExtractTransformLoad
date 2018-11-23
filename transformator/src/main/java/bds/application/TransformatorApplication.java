@@ -37,7 +37,7 @@ public class TransformatorApplication implements CommandLineRunner {
             transformatorService.deleteSourceTableIndex();
             log.info(" -->> Gathering records for work (filling proceed_table) ...");
 
-            if (transformatorService.getProceedList() == false) {
+            if (!transformatorService.getProceedList()) {
                 log.info(" -->> Error while gathering records for work (filling proceed_table)! Exit.");
                 System.exit(-1);
             }
